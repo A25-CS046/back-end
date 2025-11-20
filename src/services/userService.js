@@ -1,13 +1,16 @@
-// Impor Prisma Client, BUKAN userModel
-const prisma = require("../config/prismaClient");
+const { db, users } = require("../config/drizzleClient");
+const { eq } = require("drizzle-orm");
 const bcrypt = require("bcryptjs");
 
 const createUser = async (userData) => {
   const { email, password, name } = userData;
 
-  const existingUser = await prisma.user.findUnique({
-    where: { email: email },
-  });
+  const existingRows = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, email));
+  const existingUser =
+    existingRows && existingRows.length > 0 ? existingRows[0] : null;
 
   if (existingUser) {
     throw new Error("User with this email already exists");
@@ -15,15 +18,13 @@ const createUser = async (userData) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const newUser = await prisma.user.create({
-    data: {
-      email: email,
-      password: hashedPassword,
-      name: name,
-    },
-  });
+  const inserted = await db
+    .insert(users)
+    .values({ email: email, password: hashedPassword, name: name })
+    .returning();
 
-  delete newUser.password;
+  const newUser = Array.isArray(inserted) ? inserted[0] : inserted;
+  if (newUser && newUser.password) delete newUser.password;
   return newUser;
 };
 
