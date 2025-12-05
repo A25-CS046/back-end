@@ -9,23 +9,16 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio"
-  },
-  "devDependencies": {
-    "drizzle-kit": "^0.31.7"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "csv-parse": "^5.4.0",
+    "drizzle-orm": "*",
+    "pg": "^8.10.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
-    "csv-parse": "^5.4.0",
-    "csv-parser": "^3.2.0",
     "dotenv": "^17.2.3",
-    "drizzle-orm": "*",
     "express": "^5.1.0",
-    "nodemon": "^3.1.10",
-    "pg": "^8.10.0"
+    "nodemon": "^3.1.10"
   }
 }

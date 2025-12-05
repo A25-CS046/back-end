@@ -1,19 +1,17 @@
-const express = require("express");
-const cors = require("cors");
-const mainRouter = require("./routes/index");
-const dataRoutes = require("./routes/dataRoutes");
-const errorHandler = require("./middlewares/errorHandler");
+const express = require('express');
+const cors = require('cors');
+const mainRouter = require('./routes/index');
+const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
 
 // === Global Middlewares ===
-app.use(cors()); // Mengizinkan Cross-Origin Requests
-app.use(express.json()); // Mem-parsing body request JSON
-app.use(express.urlencoded({ extended: true })); // Mem-parsing body request URL-encoded
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Semua rute akan memiliki prefix /api
-app.use("/api", mainRouter);
-app.use("/api/ml-data", dataRoutes);
+// All routes under /api
+app.use('/api', mainRouter);
 
 // === Global Error Handler ===
 app.use(errorHandler);
