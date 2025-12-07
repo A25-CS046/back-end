@@ -1,10 +1,8 @@
-const { Pool } = require("pg");
 const fs = require("fs");
 const path = require("path");
 const csv = require("csv-parser");
+const { pool } = require("../config/database");
 const thresholds = require("../config/thresholds");
-
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
 function parseWindowToMs(windowStr) {
   if (!windowStr) return 24 * 3600 * 1000; // default 24h

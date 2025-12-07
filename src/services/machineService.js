@@ -1,7 +1,5 @@
-const { Pool } = require("pg");
+const { pool } = require("../config/database");
 const thresholds = require("../config/thresholds");
-
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
 /**
  * List machines with pagination, search, and status filter

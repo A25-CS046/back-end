@@ -1,4 +1,3 @@
-const { Pool } = require("pg");
 const { drizzle } = require("drizzle-orm/node-postgres");
 const {
   pgTable,
@@ -7,8 +6,8 @@ const {
   text,
   timestamp,
 } = require("drizzle-orm/pg-core");
+const { pool } = require("./database");
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const db = drizzle(pool);
 
 const users = pgTable("users", {
