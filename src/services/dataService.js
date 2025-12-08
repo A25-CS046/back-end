@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const csv = require("csv-parser");
+const csv = require("csv-parse");
 const { pool } = require("../config/database");
 const thresholds = require("../config/thresholds");
 
