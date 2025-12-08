@@ -1,5 +1,5 @@
 CREATE TABLE "users" (
-	"id" varchar(36) PRIMARY KEY NOT NULL,
+	"id" bigserial PRIMARY KEY NOT NULL,
 	"email" varchar(255) NOT NULL,
 	"password" varchar(255) NOT NULL,
 	"name" varchar(100) NOT NULL,
