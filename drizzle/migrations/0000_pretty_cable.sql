@@ -1,8 +1,13 @@
 CREATE TABLE "users" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"email" varchar(256) NOT NULL,
-	"password" text NOT NULL,
-	"name" varchar(256),
-	"createdAt" timestamp DEFAULT now() NOT NULL,
-	"updatedAt" timestamp DEFAULT now() NOT NULL
+	"id" varchar(36) PRIMARY KEY NOT NULL,
+	"email" varchar(255) NOT NULL,
+	"password" varchar(255) NOT NULL,
+	"name" varchar(100) NOT NULL,
+	"role" varchar(20) NOT NULL CHECK (role IN ('supervisor', 'technician')),
+	"specialization" varchar(100),
+	"phone" varchar(20),
+	"status" varchar(10) NOT NULL CHECK (status IN ('active', 'inactive')),
+	"last_login" timestamp,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL
 );
