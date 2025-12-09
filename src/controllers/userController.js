@@ -1,6 +1,4 @@
 const userService = require("../services/userService");
-const { pool } = require("../config/database");
-const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
@@ -29,27 +27,8 @@ const login = async (req, res, next) => {
       return res.status(400).json({ message: "Email and password are required" });
     }
 
-    // Check if the user exists
-    const userQuery = 'SELECT * FROM "users" WHERE email = $1';
-    const result = await pool.query(userQuery, [email]);
-
-    if (result.rows.length === 0) {
-      return res.status(401).json({ message: "Invalid email or password" });
-    }
-
-    const user = result.rows[0];
-
-    // Compare password
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: "Invalid email or password" });
-    }
-
-    // Update last_login and status to active
-    await pool.query(
-      'UPDATE "users" SET last_login = NOW(), status = \'active\' WHERE id = $1',
-      [user.id]
-    );
+    // Authenticate user via service
+    const user = await userService.validateLogin(email, password);
 
     // Generate JWT Token
     const payload = {
@@ -68,8 +47,6 @@ const login = async (req, res, next) => {
 
     // Remove password from response
     delete user.password;
-    // Update local user object status to reflect the DB change
-    user.status = "active";
 
     res.status(200).json({
       message: "Login successful",
@@ -77,6 +54,10 @@ const login = async (req, res, next) => {
       user,
     });
   } catch (error) {
+    // Handle specific login errors (e.g., 401 Unauthorized)
+    if (error.message === "Invalid email or password" || error.message === "Account is inactive") {
+      return res.status(401).json({ message: error.message });
+    }
     next(error);
   }
 };
@@ -84,12 +65,7 @@ const login = async (req, res, next) => {
 const logout = async (req, res, next) => {
   try {
     const userId = req.user.id;
-
-    // Set status to inactive
-    await pool.query('UPDATE "users" SET status = \'inactive\' WHERE id = $1', [
-      userId,
-    ]);
-
+    await userService.logout(userId);
     res.status(200).json({ message: "Logout successful" });
   } catch (error) {
     next(error);
@@ -99,17 +75,13 @@ const logout = async (req, res, next) => {
 const getProfile = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    // Explicitly select columns to avoid returning password
-    const query =
-      'SELECT id, email, name, role, specialization, phone, status, last_login, created_at, updated_at FROM "users" WHERE id = $1';
-    const result = await pool.query(query, [userId]);
-
-    if (result.rows.length === 0) {
+    const userProfile = await userService.getUserProfile(userId);
+    res.status(200).json(userProfile);
+  }
+  catch (error) {
+    if (error.message === "User not found") {
       return res.status(404).json({ message: "User not found" });
     }
-
-    res.status(200).json(result.rows[0]);
-  } catch (error) {
     next(error);
   }
 };
@@ -131,32 +103,16 @@ const changePassword = async (req, res, next) => {
         .json({ message: "New password must be at least 6 characters long" });
     }
 
-    // Get current password hash
-    const userQuery = 'SELECT password FROM "users" WHERE id = $1';
-    const result = await pool.query(userQuery, [userId]);
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    const user = result.rows[0];
-    const isMatch = await bcrypt.compare(currentPassword, user.password);
-
-    if (!isMatch) {
-      return res.status(400).json({ message: "Incorrect current password" });
-    }
-
-    // Hash new password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(newPassword, salt);
-
-    // Update password
-    const updateQuery =
-      'UPDATE "users" SET password = $1, updated_at = NOW() WHERE id = $2';
-    await pool.query(updateQuery, [hashedPassword, userId]);
+    await userService.changePassword(userId, currentPassword, newPassword);
 
     res.status(200).json({ message: "Password updated successfully" });
   } catch (error) {
+    if (error.message === "Incorrect current password") {
+      return res.status(400).json({ message: error.message });
+    }
+    if (error.message === "User not found") {
+      return res.status(404).json({ message: "User not found" });
+    }
     next(error);
   }
 };

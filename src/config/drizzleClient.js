@@ -1,22 +1,7 @@
 const { drizzle } = require("drizzle-orm/node-postgres");
-const {
-  pgTable,
-  serial,
-  varchar,
-  text,
-  timestamp,
-} = require("drizzle-orm/pg-core");
 const { pool } = require("./database");
+const schema = require("../db/schema");
 
-const db = drizzle(pool);
+const db = drizzle(pool, { schema });
 
-const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  email: varchar("email", { length: 256 }).notNull(),
-  password: text("password").notNull(),
-  name: varchar("name", { length: 256 }),
-  createdAt: timestamp("createdAt").notNull().defaultNow(),
-  updatedAt: timestamp("updatedAt").notNull().defaultNow(),
-});
-
-module.exports = { db, users };
+module.exports = { db, ...schema };
