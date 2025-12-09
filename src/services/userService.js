@@ -3,7 +3,8 @@ const { eq } = require("drizzle-orm");
 const bcrypt = require("bcryptjs");
 
 const createUser = async (userData) => {
-  const { email, password, name } = userData;
+  const { email, password, name, role, specialization, phone, status } =
+    userData;
 
   const existingRows = await db
     .select()
@@ -20,7 +21,15 @@ const createUser = async (userData) => {
 
   const inserted = await db
     .insert(users)
-    .values({ email: email, password: hashedPassword, name: name })
+    .values({
+      email: email,
+      password: hashedPassword,
+      name: name,
+      role: role || "technician",
+      specialization: specialization || null,
+      phone: phone || null,
+      status: status || "active",
+    })
     .returning();
 
   const newUser = Array.isArray(inserted) ? inserted[0] : inserted;
