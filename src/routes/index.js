@@ -7,12 +7,14 @@ const dashboardRoutes = require("./dashboardRoutes");
 const machineRoutes = require("./machineRoutes");
 const copilotRoutes = require("./copilotRoutes");
 const recommendationRoutes = require("./recommendationRoutes");
+const maintenanceScheduleRoutes = require("./maintenanceScheduleRoutes");
 
 router.use("/users", userRoutes);
 router.use("/dashboard", dashboardRoutes);
 router.use("/machines", machineRoutes);
 router.use("/copilot", copilotRoutes);
 router.use("/recommendations", recommendationRoutes);
+router.use("/maintenance-schedules", maintenanceScheduleRoutes);
 router.use("/", dataRoutes);
 
 module.exports = router;
